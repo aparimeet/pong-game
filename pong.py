@@ -1,12 +1,21 @@
-import sys
 import pygame
+import random
+import sys
+import time
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 960
-BALL_SPEED_X = 7
-BALL_SPEED_Y = 7
+BALL_SPEED_X = 8 * random.choice((1, -1))
+BALL_SPEED_Y = 8 * random.choice((1, -1))
 PLAYER_SPEED = 0
 OPPONENT_SPEED = 7
+
+def reset_ball_location():
+    global BALL_SPEED_X, BALL_SPEED_Y
+    # Reset ball location to center of screen
+    ball.center = (SCREEN_HEIGHT/2, SCREEN_WIDTH/2)
+    BALL_SPEED_Y *= random.choice((1, -1))
+    BALL_SPEED_X *= random.choice((1, -1))
 
 def ball_animations():
     global BALL_SPEED_X, BALL_SPEED_Y
@@ -15,8 +24,10 @@ def ball_animations():
 
     if ball.top <= 0 or ball.bottom >= SCREEN_HEIGHT:
         BALL_SPEED_Y *= -1
+
+    # If the ball hits the leftmost and rightmost side of the screen, reset the ball location
     if ball.left <= 0 or ball.right >= SCREEN_WIDTH:
-        BALL_SPEED_X *= -1
+        reset_ball_location()
 
     if ball.colliderect(player) or ball.colliderect(opponent):
         BALL_SPEED_X *= -1
