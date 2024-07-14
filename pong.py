@@ -37,6 +37,12 @@ def opponent_animations():
     if opponent.bottom < ball.bottom:
         opponent.y += OPPONENT_SPEED
 
+    # Prevent opponent from going off the screen
+    if opponent.top <= 0:
+        opponent.top = 0
+    if opponent.bottom >= SCREEN_HEIGHT:
+        opponent.bottom = SCREEN_HEIGHT
+
 pygame.init()
 clock = pygame.time.Clock()
 
