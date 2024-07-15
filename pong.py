@@ -5,8 +5,8 @@ import time
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 960
-BALL_SPEED_X = 8 * random.choice((1, -1))
-BALL_SPEED_Y = 8 * random.choice((1, -1))
+BALL_SPEED_X = 9 * random.choice((1, -1))
+BALL_SPEED_Y = 9 * random.choice((1, -1))
 PLAYER_SPEED = 0
 OPPONENT_SPEED = 7
 PLAYER_SCORE, OPPONENT_SCORE = 0, 0
@@ -61,8 +61,21 @@ def ball_animations():
         PLAYER_SCORE += 1
         SCORE_TIME = pygame.time.get_ticks()
 
-    if ball.colliderect(player) or ball.colliderect(opponent):
-        BALL_SPEED_X *= -1
+    if ball.colliderect(player) and BALL_SPEED_X < 0:
+        if abs(ball.left - player.right) < 5:
+            BALL_SPEED_X *= -1
+        elif abs(ball.top - player.bottom) < 5 and BALL_SPEED_Y < 0:
+            BALL_SPEED_Y *= -1
+        elif abs(ball.bottom - player.top) < 5 and BALL_SPEED_Y > 0:
+            BALL_SPEED_Y *= -1
+
+    if ball.colliderect(opponent) and BALL_SPEED_X > 0:
+        if abs(ball.right - opponent.left) < 5:
+            BALL_SPEED_X *= -1
+        elif abs(ball.top - opponent.bottom) < 5 and BALL_SPEED_Y < 0:
+            BALL_SPEED_Y *= -1
+        elif abs(ball.bottom - opponent.top) < 5 and BALL_SPEED_Y > 0:
+            BALL_SPEED_Y *= -1
 
 def player_animations():
     player.y += PLAYER_SPEED
