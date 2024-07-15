@@ -10,16 +10,42 @@ BALL_SPEED_Y = 8 * random.choice((1, -1))
 PLAYER_SPEED = 0
 OPPONENT_SPEED = 7
 PLAYER_SCORE, OPPONENT_SCORE = 0, 0
+SCORE_TIME= True
 
 def reset_ball_location():
-    global BALL_SPEED_X, BALL_SPEED_Y
+    global BALL_SPEED_X, BALL_SPEED_Y, SCORE_TIME
+
+    current_time = pygame.time.get_ticks()
     # Reset ball location to center of screen
-    ball.center = (SCREEN_HEIGHT/2, SCREEN_WIDTH/2)
-    BALL_SPEED_Y *= random.choice((1, -1))
-    BALL_SPEED_X *= random.choice((1, -1))
+    ball.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+
+    # Keep the ball still in the center then the time diff between current time and last score time is 3 seconds or less
+    time_diff = current_time - SCORE_TIME
+
+    if current_time - SCORE_TIME <= 1000:
+        display_num_3 = GAME_FONT.render("3", True, light_grey)
+        screen.blit(display_num_3, ((SCREEN_WIDTH / 2) - 30, SCREEN_HEIGHT / 2 + 20))
+        screen.blit(display_num_3, ((SCREEN_WIDTH / 2) + 15, SCREEN_HEIGHT / 2 + 20))
+    if 1001 < current_time - SCORE_TIME <= 2000:
+        display_num_2 = GAME_FONT.render("2", True, light_grey)
+        screen.blit(display_num_2, ((SCREEN_WIDTH / 2) - 30, SCREEN_HEIGHT / 2 + 20))
+        screen.blit(display_num_2, ((SCREEN_WIDTH / 2) + 15, SCREEN_HEIGHT / 2 + 20))
+    if 2001 < current_time - SCORE_TIME <= 3000:
+        display_num_1 = GAME_FONT.render("1",False,light_grey)
+        screen.blit(display_num_1, ((SCREEN_WIDTH / 2) - 30, SCREEN_HEIGHT / 2 + 20))
+        screen.blit(display_num_1, ((SCREEN_WIDTH / 2) + 15, SCREEN_HEIGHT / 2 + 20))
+
+    if time_diff <= 3000:
+        BALL_SPEED_X, BALL_SPEED_Y = 0, 0
+    else:
+        # Randomize the X and Y vectors of the ball
+        BALL_SPEED_X = 7 * random.choice((1, -1))
+        BALL_SPEED_Y = 7 * random.choice((1, -1))
+        # Reset score time
+        SCORE_TIME = None
 
 def ball_animations():
-    global BALL_SPEED_X, BALL_SPEED_Y, PLAYER_SCORE, OPPONENT_SCORE
+    global BALL_SPEED_X, BALL_SPEED_Y, PLAYER_SCORE, OPPONENT_SCORE, SCORE_TIME
     ball.x += BALL_SPEED_X
     ball.y += BALL_SPEED_Y
 
@@ -29,11 +55,11 @@ def ball_animations():
     # If the ball hits the leftmost and rightmost side of the screen, reset the ball location
     if ball.left <= 0:
         OPPONENT_SCORE += 1
-        reset_ball_location()
+        SCORE_TIME = pygame.time.get_ticks()
 
     if ball.right >= SCREEN_WIDTH:
         PLAYER_SCORE += 1
-        reset_ball_location()
+        SCORE_TIME = pygame.time.get_ticks()
 
     if ball.colliderect(player) or ball.colliderect(opponent):
         BALL_SPEED_X *= -1
@@ -101,6 +127,9 @@ while True:
     pygame.draw.rect(screen, light_grey, opponent)
     pygame.draw.ellipse(screen, light_grey, ball)
     pygame.draw.aaline(screen, light_grey, (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT))
+
+    if SCORE_TIME:
+        reset_ball_location()
 
     # Render scored on middle-top of screen
     player_text = GAME_FONT.render(f"{PLAYER_SCORE}", True, light_grey)
