@@ -74,14 +74,14 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_DOWN:
+            if event.key in [pygame.K_DOWN, pygame.K_s]:
                 PLAYER_SPEED += 7
-            if event.key == pygame.K_UP:
+            if event.key in [pygame.K_UP, pygame.K_w]:
                 PLAYER_SPEED -= 7
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN:
+            if event.key  in [pygame.K_DOWN, pygame.K_s]:
                 PLAYER_SPEED -= 7
-            if event.key == pygame.K_UP:
+            if event.key in [pygame.K_UP, pygame.K_w]:
                 PLAYER_SPEED += 7
 
     ball_animations()
