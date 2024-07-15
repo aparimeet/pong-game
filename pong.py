@@ -9,6 +9,7 @@ BALL_SPEED_X = 8 * random.choice((1, -1))
 BALL_SPEED_Y = 8 * random.choice((1, -1))
 PLAYER_SPEED = 0
 OPPONENT_SPEED = 7
+PLAYER_SCORE, OPPONENT_SCORE = 0, 0
 
 def reset_ball_location():
     global BALL_SPEED_X, BALL_SPEED_Y
@@ -18,7 +19,7 @@ def reset_ball_location():
     BALL_SPEED_X *= random.choice((1, -1))
 
 def ball_animations():
-    global BALL_SPEED_X, BALL_SPEED_Y
+    global BALL_SPEED_X, BALL_SPEED_Y, PLAYER_SCORE, OPPONENT_SCORE
     ball.x += BALL_SPEED_X
     ball.y += BALL_SPEED_Y
 
@@ -26,7 +27,12 @@ def ball_animations():
         BALL_SPEED_Y *= -1
 
     # If the ball hits the leftmost and rightmost side of the screen, reset the ball location
-    if ball.left <= 0 or ball.right >= SCREEN_WIDTH:
+    if ball.left <= 0:
+        OPPONENT_SCORE += 1
+        reset_ball_location()
+
+    if ball.right >= SCREEN_WIDTH:
+        PLAYER_SCORE += 1
         reset_ball_location()
 
     if ball.colliderect(player) or ball.colliderect(opponent):
@@ -68,6 +74,8 @@ opponent = pygame.Rect(SCREEN_WIDTH - 20, SCREEN_HEIGHT/2 - 70, 10, 140)
 bg_color = pygame.Color('grey12')
 light_grey = (200, 200, 200)
 
+GAME_FONT = pygame.font.Font("freesansbold.ttf", 32)
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -93,6 +101,12 @@ while True:
     pygame.draw.rect(screen, light_grey, opponent)
     pygame.draw.ellipse(screen, light_grey, ball)
     pygame.draw.aaline(screen, light_grey, (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT))
+
+    # Render scored on middle-top of screen
+    player_text = GAME_FONT.render(f"{PLAYER_SCORE}", True, light_grey)
+    screen.blit(player_text, ((SCREEN_WIDTH / 2) - 30, 0))
+    opponent_text = GAME_FONT.render(f"{OPPONENT_SCORE}", True, light_grey)
+    screen.blit(opponent_text, ((SCREEN_WIDTH / 2) + 15, 0))
 
     pygame.display.flip()
     clock.tick_busy_loop(60)
