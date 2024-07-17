@@ -37,9 +37,9 @@ class Opponent(Block):
             self.rect.bottom = SCREEN_HEIGHT
 
     def update(self, ball_group):
-        if self.rect.top < ball_group.sprite.rect.y:
+        if self.rect.centery < ball_group.sprite.rect.top:
             self.rect.y += self.speed
-        if self.rect.bottom > ball_group.sprite.rect.y:
+        if self.rect.centery > ball_group.sprite.rect.bottom:
             self.rect.y -= self.speed
         self.screen_constraint()
 
@@ -56,6 +56,11 @@ class Ball(pygame.sprite.Sprite):
         self.paddles = paddles
         self.is_game_active = False
         self.score_time = 0
+
+    def gradual_speed_increase(self):
+        # Increase speed_x and speed_y by 0.1
+        self.speed_x = (self.speed_x / abs(self.speed_x))*0.1 + self.speed_x
+        self.speed_y = (self.speed_y / abs(self.speed_y))*0.1 + self.speed_y
 
     def update(self):
         if self.is_game_active:
@@ -81,6 +86,8 @@ class Ball(pygame.sprite.Sprite):
             if abs(self.rect.bottom - collision_paddle.top) < 10 and self.speed_y > 0:
                 self.rect.bottom = collision_paddle.top
                 self.speed_y *= -1
+            # Every time the collision is made with a paddle, increase speed by 0.1
+            self.gradual_speed_increase()
 
     def reset_ball(self):
         self.is_game_active = False
@@ -155,8 +162,8 @@ light_grey = (200, 200, 200)
 GAME_FONT = pygame.font.Font("freesansbold.ttf", 32)
 middle_separator = pygame.Rect(SCREEN_WIDTH/2, 0, 4, SCREEN_HEIGHT)
 
-player = Player(20, SCREEN_HEIGHT / 2, 10, 140, 5)
-opponent = Opponent(SCREEN_WIDTH - 20, SCREEN_HEIGHT / 2, 10, 140, 5)
+player = Player(20, SCREEN_HEIGHT / 2, 10, 140, 6)
+opponent = Opponent(SCREEN_WIDTH - 20, SCREEN_HEIGHT / 2, 10, 140, 6)
 paddle_group = pygame.sprite.Group()
 paddle_group.add(player)
 paddle_group.add(opponent)
