@@ -51,48 +51,53 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         pygame.draw.circle(self.image, light_grey, (radius, radius), radius)
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
-        self.speed_x = speed_x * random.choice((1, -1))
-        self.speed_y = speed_y * random.choice((1, -1))
+        # Original speed stores the initial value passed for speed
+        self.original_speed_x = speed_x * random.choice((1, -1))
+        self.original_speed_y = speed_y * random.choice((1, -1))
+        # Local speed is the speed that increases gradually
+        self.local_speed_x = self.original_speed_x
+        self.local_speed_y = self.original_speed_y
         self.paddles = paddles
         self.is_game_active = False
         self.score_time = 0
 
     def gradual_speed_increase(self):
         # Increase speed_x and speed_y by 0.1
-        self.speed_x = (self.speed_x / abs(self.speed_x))*0.1 + self.speed_x
-        self.speed_y = (self.speed_y / abs(self.speed_y))*0.1 + self.speed_y
+        self.local_speed_x = (self.local_speed_x / abs(self.local_speed_x))*0.1 + self.local_speed_x
+        self.local_speed_y = (self.local_speed_y / abs(self.local_speed_y))*0.1 + self.local_speed_y
 
     def update(self):
         if self.is_game_active:
-            self.rect.x += self.speed_x
-            self.rect.y += self.speed_y
             self.collisions()
+            self.rect.x += self.local_speed_x
+            self.rect.y += self.local_speed_y
         else:
             self.restart_counter()
     
     def collisions(self):
         if self.rect.top <= 0 or self.rect.bottom >= SCREEN_HEIGHT:
-            self.speed_y *= -1
+            self.local_speed_y *= -1
 
         if pygame.sprite.spritecollide(self, self.paddles, False):
             collision_paddle = pygame.sprite.spritecollide(self, self.paddles, False)[0].rect
-            if abs(self.rect.right - collision_paddle.left) < 10 and self.speed_x > 0:
-                self.speed_x *= -1
-            if abs(self.rect.left - collision_paddle.right) < 10 and self.speed_x < 0:
-                self.speed_x *= -1
-            if abs(self.rect.top - collision_paddle.bottom) < 10 and self.speed_y < 0:
+            if abs(self.rect.right - collision_paddle.left) < 10 and self.local_speed_x > 0:
+                self.local_speed_x *= -1
+            if abs(self.rect.left - collision_paddle.right) < 10 and self.local_speed_x < 0:
+                self.local_speed_x *= -1
+            if abs(self.rect.top - collision_paddle.bottom) < 10 and self.local_speed_y < 0:
                 self.rect.top = collision_paddle.bottom
-                self.speed_y *= -1
-            if abs(self.rect.bottom - collision_paddle.top) < 10 and self.speed_y > 0:
+                self.local_speed_y *= -1
+            if abs(self.rect.bottom - collision_paddle.top) < 10 and self.local_speed_y > 0:
                 self.rect.bottom = collision_paddle.top
-                self.speed_y *= -1
+                self.local_speed_y *= -1
             # Every time the collision is made with a paddle, increase speed by 0.1
             self.gradual_speed_increase()
 
     def reset_ball(self):
         self.is_game_active = False
-        self.speed_x *= random.choice((1, -1))
-        self.speed_y *= random.choice((1, -1))
+        # Reset the x and y speed to the original values and randomize the directions
+        self.local_speed_x = self.original_speed_x * random.choice((1, -1))
+        self.local_speed_y = self.original_speed_y * random.choice((1, -1))
         self.score_time = pygame.time.get_ticks()
         self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
